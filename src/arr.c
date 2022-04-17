@@ -39,6 +39,7 @@ enum ArrErrors resize(size_t size) {
 }
 
 __attribute__((used)) enum ArrErrors __allocArr_ctor() {
+    printf("Ctor\n");
     //void **arrr = NULL;
     //arrr = (void**)malloc(1*sz);
     //arrr[0] = (void *)69;

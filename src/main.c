@@ -11,23 +11,34 @@
 bool isDebug = true;
 
 void printBoard();
-enum Movement parseInput(const char *in);
+enum Movement strToMov(const char *in);
 void move(enum Movement mov);
 
 bool running = true;
+
+#define PL_ICON 'X'
+#define BX_ICON 'O'
 pos plPos  = { 0, 0 };
 pos boxPos = { 0, 0 };
 
-int main(int argc, const char *argv[]) {
+__attribute__((used))  __attribute__((constructor)) void startUp() {
     srand(time(NULL));
-    plPos = (pos){ rand() % 5, rand() % 5 };
+    plPos  = (pos){ rand() % 5, rand() % 5 };
+    while(boxPos.x != plPos.x && boxPos.y != plPos.y)
+        boxPos = (pos){ rand() % 5, rand() % 5 };
+    board[boxPos.y][boxPos.x] = BX_ICON;
+    if(isDebug)
+        printf("Box: y: %d x: %d\n", boxPos.y, boxPos.x);
+}
+
+int main(int argc, const char *argv[]) {
     char inp[INP_SZ];
     enum Movement mov = NONE;
     printBoard();
     while(running) {
         printf("> ");
         scanf("%15s", inp);
-        mov = parseInput(inp);
+        mov = strToMov(inp);
         printf("%s %d\n", inp, mov);
         move(mov);
         printBoard();
@@ -74,7 +85,7 @@ void move(enum Movement mov) {
     }
 }
 
-enum Movement parseInput(const char *in) {
+enum Movement strToMov(const char *in) {
     if(strnlen(in, 2) == 1) {
         switch (in[0]) {
             case 'q': return QUIT;

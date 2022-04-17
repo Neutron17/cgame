@@ -14,7 +14,6 @@ char board[B_HEI][B_WID] = {
         {' ', ' ', ' ', ' ', ' '},
         {' ', ' ', ' ', ' ', ' '}
 };
-#define PL_ICON 'X'
 
 typedef struct {
     unsigned y;
