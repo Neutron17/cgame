@@ -7,7 +7,6 @@
 
 #define B_WID 6
 #define B_HEI 5
-extern const char board[B_HEI][B_WID];
 
 enum Movement {
     QUIT, NONE,
