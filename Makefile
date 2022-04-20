@@ -2,7 +2,7 @@ CC = gcc
 
 PNAME = c
 
-SRC  = src/main.c src/arr.c#$(shell find src -name "*.c")
+SRC  = $(shell find src -name "*.c")
 OBJ  = $(SRC:.c=.o)
 BIN = build
 

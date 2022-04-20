@@ -7,18 +7,8 @@
 
 #define B_WID 6
 #define B_HEI 5
-char board[B_HEI][B_WID] = {
-        {' ', ' ', ' ', ' ', ' '},
-        {' ', ' ', ' ', ' ', ' '},
-        {' ', ' ', ' ', ' ', ' '},
-        {' ', ' ', ' ', ' ', ' '},
-        {' ', ' ', ' ', ' ', ' '}
-};
+extern const char board[B_HEI][B_WID];
 
-typedef struct {
-    unsigned y;
-    unsigned x;
-} pos;
 enum Movement {
     QUIT, NONE,
     UP, DOWN, LEFT, RIGHT

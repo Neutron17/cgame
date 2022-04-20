@@ -23,6 +23,7 @@ enum ArrErrors {
 
 // Malloc copy
 void *alloc(size_t size);
+void *acalloc(size_t __nmemb, size_t __size);
 // Constructor
 __attribute__((used)) enum ArrErrors __attribute__((constructor)) __allocArr_ctor();
 // Destructor

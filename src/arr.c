@@ -22,20 +22,12 @@ void *alloc(size_t size) {
     }
     return x;
 }
-enum ArrErrors resize(size_t size) {
-    if(size == max)
-        return SAME_SZ;
-    if(size < max) {
-        if (size > used) {
-            for(int i = 0; i < size - used; i++) {
-
-            }
-            arr.arr = realloc(arr.arr, size);
-            return SHR_FREE;
-        }
-        return SHR;
+void *acalloc(size_t __nmemb, size_t __size) {
+    void *x = calloc(__nmemb, __size);
+    if(x != NULL) {
+        allocArr_add(x);
     }
-    return INC;
+    return x;
 }
 
 __attribute__((used)) enum ArrErrors __allocArr_ctor() {
@@ -81,7 +73,7 @@ enum ArrErrors allocArr_add(void *n) {
 
     arr.arr[used] = n;
     if(isDebug)
-        printf("Added %d. element %p\n", used+1, n);
+        printf("Added %d. element %p\n", used + 1, n);
     used++;
     return SUCCESS;
 }
