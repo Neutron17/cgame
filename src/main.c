@@ -17,6 +17,7 @@ enum Movement strToMov(const char *in);
 void move(entity *pl, pos box, enum Movement mov);
 bool moveBlocked(pos plPos, pos box, enum Movement mov);
 
+#define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON })
 
 bool running = true;
 
@@ -27,8 +28,8 @@ int main(int argc, const char *argv[]) {
     entity pl = { { 2,2 }, PL_ICON };
     setUpEntity(9, &pl);
     //addEntity((entity){ { 2,3 }, PL_ICON });
-    addEntity((entity) { {rand()%5, rand()%5} , BX_ICON});
-    addEntity((entity) { {rand()%5, rand()%5} , BX_ICON});
+    newBox(rand()%5,rand()%5);
+    newBox(rand()%5,rand()%5);
     char inp[INP_SZ];
     enum Movement mov = NONE;
     printBoard();
