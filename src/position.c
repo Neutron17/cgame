@@ -1,7 +1,3 @@
-//
-// Created by neutron17 on 2022.04.18..
-//
-
 #include "position.h"
 #include <stdlib.h>
 

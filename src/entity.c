@@ -1,7 +1,3 @@
-//
-// Created by neutron17 on 2022.04.18..
-//
-
 #include "entity.h"
 #include <stdio.h>
 #include "arr.h"
@@ -12,6 +8,7 @@ size_t ent_sz = 0;
 size_t  entMax = 0;
 entity *pl;
 
+void __defFn() {  }
 void setUpEntity(size_t n, entity *player) {
     pl = player;
     if((entities = acalloc(sizeof(entity), n)) == NULL) {

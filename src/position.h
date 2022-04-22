@@ -1,7 +1,3 @@
-//
-// Created by neutron17 on 2022.04.18..
-//
-
 #ifndef _NTR_POSITION_H_
 #define _NTR_POSITION_H_
 
