@@ -1,4 +1,4 @@
-CC = gcc
+CC = clang
 
 PNAME = c
 
@@ -11,12 +11,14 @@ INCFLAGS  = -Isrc/
 
 CCFLAGS += $(INCFLAGS)
 CCFLAGS += -Ofast
+#CCFLAGS += -fblocks
 #CCFLAGS += -s
 #CCFLAGS += -ffast-math
 #CCFLAGS += -nostartfiles
 #CCFLAGS += -nodefaultlibs
 
 LDFLAGS  = $(INCFLAGS)
+#LDFLAGS += -lBlocksRuntime
 
 all: build
 

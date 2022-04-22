@@ -7,6 +7,7 @@
 #include "board.h"
 #include "position.h"
 #include "entity.h"
+#include "collider.h"
 
 #define INP_SZ 16
 
@@ -14,10 +15,11 @@ bool isDebug = true;
 
 void printBoard();
 enum Movement strToMov(const char *in);
-void move(entity *pl, pos box, enum Movement mov);
-bool moveBlocked(pos plPos, pos box, enum Movement mov);
+void move(entity *pl, enum Movement mov);
+bool moveBlocked(entity pl, entity box, enum Movement mov);
 
-#define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON })
+
+#define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, boxCollHandler})
 
 bool running = true;
 
@@ -25,104 +27,115 @@ bool running = true;
 #define BX_ICON 'W'
 
 int main(int argc, const char *argv[]) {
-    entity pl = { { 2,2 }, PL_ICON };
+    entity pl = Entity(((pos){1,2}), PL_ICON, false);
     setUpEntity(9, &pl);
-    //addEntity((entity){ { 2,3 }, PL_ICON });
     newBox(rand()%5,rand()%5);
     newBox(rand()%5,rand()%5);
+    addEntity((entity) { {rand()%5,rand()%5}, 'O', false });
     char inp[INP_SZ];
     enum Movement mov = NONE;
     printBoard();
     while(running) {
         printf("> ");
+inp:
         scanf("%15s", inp);
-        mov = strToMov(inp);
+        while((mov = strToMov(inp)) == NONE) {
+            goto inp;
+        }
         printf("%s %d\n", inp, mov);
-        move(&pl,(pos){0,0},mov);
+        move(&pl, mov);
         printBoard();
     }
     return EXIT_SUCCESS;
 }
-void move(entity *pl, pos box, enum Movement mov) {
-    for(int i = 0; i < ent_sz; i++) {
-        if (moveBlocked(pl->position, entAtIndex(i)->position, mov)) {
+void move(entity *pl, enum Movement mov) {
+    for (int i = 0; i < ent_sz; i++) {
+        if (!entAtIndex(i)->doCollide)
+            continue;
+        if (moveBlocked(*pl, *entAtIndex(i), mov)) {
             puts("Blocked");
             return;
         }
 
         puts("not blocked");
     }
-        switch (mov) {
-            case QUIT:
-                if (isDebug)
-                    puts("Exiting...");
-                running = false;
-                return;
-            case UP:
-                if (isDebug)
-                    puts("U");
-                if (pl->position.y > 0)
-                    pl->position.y--;
-                break;
-            case DOWN:
-                if (isDebug)
-                    puts("D");
-                if (pl->position.y + 1 < B_HEI)
-                    pl->position.y++;
-                break;
-            case LEFT:
-                if (isDebug)
-                    puts("L");
-                if (pl->position.x > 0)
-                    pl->position.x--;
-                break;
-            case RIGHT:
-                if (isDebug)
-                    puts("R");
-                if (pl->position.x + 1 < B_WID - 1)
-                    pl->position.x++;
-                break;
-            case NONE:
-                fprintf(stderr, "Command not found\n");
-                if (isDebug)
-                    puts("NONE");
-                fflush(stderr);
-                break;
-            default:
-                break;
-        }
+    switch (mov) {
+        case QUIT:
+            if (isDebug)
+                puts("Exiting...");
+            running = false;
+            return;
+        case UP:
+            if (isDebug)
+                puts("U");
+            if (pl->position.y > 0)
+                pl->position.y--;
+            break;
+        case DOWN:
+            if (isDebug)
+                puts("D");
+            if (pl->position.y + 1 < B_HEI)
+                pl->position.y++;
+            break;
+        case LEFT:
+            if (isDebug)
+                puts("L");
+            if (pl->position.x > 0)
+                pl->position.x--;
+            break;
+        case RIGHT:
+            if (isDebug)
+                puts("R");
+            if (pl->position.x + 1 < B_WID - 1)
+                pl->position.x++;
+            break;
+        case NONE:
+            fprintf(stderr, "Command not found\n");
+            if (isDebug)
+                puts("NONE");
+            fflush(stderr);
+            break;
+        default:
+            break;
+    }
 }
 
-bool moveBlocked(pos plPos, pos boxPos, enum Movement mov) {
+bool moveBlocked(entity pl, entity box, enum Movement mov) {
+    pos boxPos = box.position;
+    pos plPos = pl.position;
     pos diff = pDiff(plPos, boxPos);
     printf("diff: x %d y %d\npl x %d y %d\n"
            "box x %d y %d\n",
            diff.x, diff.y, plPos.x, plPos.y,
            boxPos.x,boxPos.y);
     if(pSumU(diff) != 1)
-        return false;
+        goto f;
     if(mov == UP || mov == DOWN) {
         if(diff.y == 0)
-            return false;
+            goto f;
         if(mov == UP) {
             if(diff.y == 1)
-                return true;
+                goto t;
         } else {
             if(diff.y == -1)
-                return true;
+                goto t;
         }
     } else if(mov == LEFT || mov == RIGHT) {
-        if(diff.x == 0)
-            return false;
-        if(mov == RIGHT) {
-            if(diff.x == -1)
-                return true;
+        if (diff.x == 0)
+            goto f;
+        if (mov == RIGHT) {
+            if (diff.x == -1)
+                goto t;
         } else {
-            if(diff.x == 1)
-                return true;
+            if (diff.x == 1)
+                goto t;
         }
     }
+f:
     return false;
+t:
+    box.onCollide(box, pl, mov);
+    return true;
 }
 
 enum Movement strToMov(const char *in) {
@@ -176,7 +189,4 @@ void printBoard() {
  * Reason: allocArr_ctor not called yet             */
 __attribute__((used)) __attribute__((constructor)) void startUp() {
     srand(time(NULL));
-    //while(pSum(pDiff(plPos, boxPos)) != 0)
-    //    boxPos = (pos){ rand() % 5, rand() % 5 };
-    //board[boxPos.y][boxPos.x] = BX_ICON;
 }

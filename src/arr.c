@@ -1,6 +1,3 @@
-//
-// Created by neutron17 on 2022. 04. 13..
-//
 #ifndef _NTR_ALL_ARR_H_
 #include "arr.h"
 #include <stdio.h>
