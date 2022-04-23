@@ -10,7 +10,8 @@
 
 enum Movement {
     QUIT, NONE,
-    UP, DOWN, LEFT, RIGHT
+    UP, DOWN, LEFT, RIGHT,
+    SAVE
 };
 
 #endif //_NTR_BOARD_H_

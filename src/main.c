@@ -17,9 +17,10 @@ void printBoard();
 enum Movement strToMov(const char *in);
 void move(entity *pl, enum Movement mov);
 bool moveBlocked(entity pl, entity box, enum Movement mov);
+void saveEntities(const char *name, entity  pl);
+void loadEntities(const char *name, entity *pl);
 
-
-#define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, boxCollHandler})
+#define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, BOX})
 
 bool running = true;
 
@@ -27,16 +28,32 @@ bool running = true;
 #define BX_ICON 'W'
 
 int main(int argc, const char *argv[]) {
-    entity pl = Entity(((pos){1,2}), PL_ICON, false);
+    entity pl = Entity(((pos){1,2}), PL_ICON, false, DEF);
     setUpEntity(9, &pl);
-    newBox(rand()%5,rand()%5);
-    newBox(rand()%5,rand()%5);
-    addEntity((entity) { {rand()%5,rand()%5}, 'O', false });
+    printf("Load[0] or create new[1]?\n");
+    switch (getchar()) {
+        case '0':
+            printf("Filename: ");
+            char buff[16];
+            //fgets(buff, 15, stdin);
+            scanf("%15s", buff);
+            loadEntities(buff, &pl);
+            updatePl(&pl);
+            break;
+        default:
+            fprintf(stderr, "Invalid option, new game\n");
+        case '1':
+            newBox(rand()%5,rand()%5);
+            newBox(rand()%5,rand()%5);
+            addEntity((entity) { {rand()%5,rand()%5}, 'O', false });
+            break;
+    }
+    //loadEntities("foo.dat");
     char inp[INP_SZ];
     enum Movement mov = NONE;
     printBoard();
     while(running) {
-inp:
+        inp:
         printf("> ");
         scanf("%15s", inp);
         if((mov = strToMov(inp)) == NONE) {
@@ -53,12 +70,8 @@ void move(entity *pl, enum Movement mov) {
     for (int i = 0; i < ent_sz; i++) {
         if (!entAtIndex(i)->doCollide)
             continue;
-        if (moveBlocked(*pl, *entAtIndex(i), mov)) {
-            puts("Blocked");
+        if (moveBlocked(*pl, *entAtIndex(i), mov))
             return;
-        }
-
-        puts("not blocked");
     }
     switch (mov) {
         case QUIT:
@@ -89,6 +102,12 @@ void move(entity *pl, enum Movement mov) {
                 puts("R");
             if (pl->position.x + 1 < B_WID - 1)
                 pl->position.x++;
+            break;
+        case SAVE:
+            printf("Filename: ");
+            char buff[16];
+            scanf("%15s", buff);
+            saveEntities(buff, *pl);
             break;
         case NONE:
             fprintf(stderr, "Command not found\n");
@@ -135,8 +154,41 @@ bool moveBlocked(entity pl, entity box, enum Movement mov) {
 f:
     return false;
 t:
-    box.onCollide(box, pl, mov);
+    collHandler(box.collisionType, box, pl, mov);
     return true;
+}
+
+void saveEntities(const char *name, entity  pl) {
+    FILE *file = fopen(name, "wb");
+    if(!file) {
+        fprintf(stderr, "Couldn't open file: %s\n", name);
+        return;
+    }
+    fwrite(&ent_sz, 1, sizeof(unsigned), file);
+    fwrite(&pl, 1, sizeof(entity), file);
+    for(int i = 0; i<ent_sz;i++) {
+        fwrite(&entities[i], 1, sizeof(entity), file);
+    }
+    /*for(int i = 0; i < ent_sz; i++) {
+        fwrite(*entAtIndex(i), 1)
+    }*/
+    fclose(file);
+}
+void loadEntities(const char *name, entity *pl) {
+    FILE *file = fopen(name, "rb");
+    if (!file) {
+        fprintf(stderr, "Couldn't open file: %s\n", name);
+        return;
+    }
+    unsigned sz;
+    fread(&sz, 1, sizeof(unsigned), file);
+    ent_sz = sz;
+    fwrite(pl, 1, sizeof(entity), file);
+    for (int i = 0; i < ent_sz; i++) {
+        fread(&entities[i], 1, sizeof(entity), file);
+        //printf("%d %d %c\n", entities[i].position.x, entities[i].position.y, entities[i].icon);
+    }
+    fclose(file);
 }
 
 enum Movement strToMov(const char *in) {
@@ -164,6 +216,8 @@ enum Movement strToMov(const char *in) {
         return LEFT;
     } else if(strncasecmp(in, "right", 5) == 0) {
         return RIGHT;
+    } else if(strncasecmp(in, "save", 4) == 0) {
+        return SAVE;
     } else {
         return NONE;
     }

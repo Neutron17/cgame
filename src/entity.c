@@ -20,6 +20,9 @@ void setUpEntity(size_t n, entity *player) {
         entities[i].icon = '?';
     }
 }
+void updatePl(entity *player) {
+    pl = player;
+}
 // is position in entities
 bool pinents(pos p) {
     if(pSame(pl->position, p))
@@ -54,7 +57,7 @@ entity *entAtIndex(unsigned index) {
 }
 
 void printEnts() {
-    for(int i = 0; i<9;i++) {
+    for(int i = 0; i<ent_sz;i++) {
         printf("%c", entities[i].icon);
     }
 }

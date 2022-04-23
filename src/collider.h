@@ -7,6 +7,7 @@
 
 #include "entity.h"
 
+void collHandler(enum CollType coll, entity rec, entity coller, enum Movement side);
 void boxCollHandler(entity rec, entity coller, enum Movement side);
 
 #endif //_NTR_COLLIDER_H_
