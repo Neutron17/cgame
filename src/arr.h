@@ -27,7 +27,7 @@ __attribute__((used)) enum ArrErrors __attribute__((constructor)) __allocArr_cto
 __attribute__((used)) enum ArrErrors __attribute__((destructor)) __allocArr_dtor();
 // Control methods
 enum ArrErrors  allocArr_add (void *n);
-enum ArrErrors  allocArr_adds(void *n, ...);
+enum ArrErrors  allocArr_adds(unsigned sz, void *n, ...);
 bool            allocArr_in  (const void *n);
 bool            allocArr_ins (const void *n, ...);
 

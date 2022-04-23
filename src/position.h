@@ -7,9 +7,9 @@ typedef struct {
 } pos;
 
 // Position arithmetic
-extern inline pos pDiff(pos x, pos y);
-extern inline int pSum (pos n);
-extern inline unsigned pSumU(pos x);
+pos pDiff(pos x, pos y);
+int pSum (pos n);
+unsigned pSumU(pos x);
 #define pSame(x,y) (pSumU(pDiff(x,y)) == 0)
 
 #endif //_NTR_POSITION_H_

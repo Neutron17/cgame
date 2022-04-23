@@ -36,10 +36,11 @@ int main(int argc, const char *argv[]) {
     enum Movement mov = NONE;
     printBoard();
     while(running) {
-        printf("> ");
 inp:
+        printf("> ");
         scanf("%15s", inp);
-        while((mov = strToMov(inp)) == NONE) {
+        if((mov = strToMov(inp)) == NONE) {
+            puts("Invalid option");
             goto inp;
         }
         printf("%s %d\n", inp, mov);

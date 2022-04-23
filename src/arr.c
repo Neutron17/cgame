@@ -74,11 +74,12 @@ enum ArrErrors allocArr_add(void *n) {
     used++;
     return SUCCESS;
 }
-enum ArrErrors allocArr_adds(void *n, ...) {
+// TODO doesn't work
+enum ArrErrors allocArr_adds(unsigned sz, void *n, ...) {
     va_list l;
     va_start(l, n);
     char last = SUCCESS;
-    for(int i = 0; i < (int)n; i++) {
+    for(int i = 0; i < sz; i++) {
         if((last = allocArr_add(va_arg(l, void *))) != SUCCESS)
         return last;
     }
@@ -95,6 +96,7 @@ enum ArrErrors __allocArr_pop1() {
     free(arr.arr[used - 1]);
     arr.arr[used - 1] = NULL;
     used--;
+    return SUCCESS;
 }
 bool allocArr_in(const void *n) {
     for(int i = 0; i < used; i++) {

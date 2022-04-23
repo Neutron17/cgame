@@ -47,6 +47,7 @@ char iconAtPos(pos p) {
         if(pSame(entities[i].position, p))
             return entities[i].icon;
     }
+    return '?';
 }
 entity *entAtIndex(unsigned index) {
     return &entities[index];
