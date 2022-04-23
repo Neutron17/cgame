@@ -11,4 +11,6 @@
 #define __CONC(A, B) __CONC_(A, B)
 #define __CONC_(A, B) A##B
 
+=======
+>>>>>>> origin/master
 #endif //_NTR_OPTARG_H_
