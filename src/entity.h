@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "position.h"
-#include "board.h"
 #include "optarg.h"
 #include "collType.h"
 
@@ -36,5 +35,7 @@ unsigned addEntity(entity ent);
 char iconAtPos(pos p);
 entity *entAtIndex(unsigned index);
 void printEnts();
+void saveEntities(const char *name, entity  pl);
+void loadEntities(const char *name, entity *pl);
 
 #endif //_NTR_ENTITY_H_

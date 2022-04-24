@@ -55,6 +55,38 @@ char iconAtPos(pos p) {
 entity *entAtIndex(unsigned index) {
     return &entities[index];
 }
+void saveEntities(const char *name, entity  pl) {
+    FILE *file = fopen(name, "wb");
+    if(!file) {
+        fprintf(stderr, "Couldn't open file: %s\n", name);
+        return;
+    }
+    fwrite(&ent_sz, 1, sizeof(unsigned), file);
+    fwrite(&pl, 1, sizeof(entity), file);
+    for(int i = 0; i<ent_sz;i++) {
+        fwrite(&entities[i], 1, sizeof(entity), file);
+    }
+    /*for(int i = 0; i < ent_sz; i++) {
+        fwrite(*entAtIndex(i), 1)
+    }*/
+    fclose(file);
+}
+void loadEntities(const char *name, entity *pl) {
+    FILE *file = fopen(name, "rb");
+    if (!file) {
+        fprintf(stderr, "Couldn't open file: %s\n", name);
+        return;
+    }
+    unsigned sz;
+    fread(&sz, 1, sizeof(unsigned), file);
+    ent_sz = sz;
+    fwrite(pl, 1, sizeof(entity), file);
+    for (int i = 0; i < ent_sz; i++) {
+        fread(&entities[i], 1, sizeof(entity), file);
+        //printf("%d %d %c\n", entities[i].position.x, entities[i].position.y, entities[i].icon);
+    }
+    fclose(file);
+}
 
 void printEnts() {
     for(int i = 0; i<ent_sz;i++) {

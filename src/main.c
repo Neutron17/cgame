@@ -4,21 +4,24 @@
 #include <string.h>
 #include <time.h>
 #include "arr.h"
-#include "board.h"
+#include "movement.h"
 #include "position.h"
 #include "entity.h"
 #include "collider.h"
 
 #define INP_SZ 16
 
-bool isDebug = true;
+const bool isDebug = true;
+
+struct Input {
+	char *str;
+	int count;
+	int times;
+	char *arg;
+};
 
 void printBoard();
-enum Movement strToMov(const char *in);
-void move(entity *pl, enum Movement mov);
-bool moveBlocked(entity pl, entity box, enum Movement mov);
-void saveEntities(const char *name, entity  pl);
-void loadEntities(const char *name, entity *pl);
+struct Input input(const char *prompt);
 
 #define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, BOX})
 
@@ -49,178 +52,57 @@ int main(int argc, const char *argv[]) {
             break;
     }
     //loadEntities("foo.dat");
-    char inp[INP_SZ];
+    //char inp[INP_SZ], arg[INP_SZ];
+    //int times;
     enum Movement mov = NONE;
+    struct Input inp;
     printBoard();
     while(running) {
-        inp:
-        printf("> ");
-        scanf("%15s", inp);
-        if((mov = strToMov(inp)) == NONE) {
+input:
+        //printf("> ");
+        //count = scanf("%15s %d", inp, &times);
+	inp = input("> ");
+	printf("str %s count %d times %d arg %s\n",
+		inp.str,inp.count,inp.times,inp.arg);
+        if((mov = strToMov(inp.str)) == NONE) {
             puts("Invalid option");
-            goto inp;
+            goto input;
         }
-        printf("%s %d\n", inp, mov);
-        move(&pl, mov);
+	printf("str %s count %d times %d arg %s\nmov %d\n",
+		inp.str,inp.count,inp.times,inp.arg,mov);
+	free(inp.str);
+	if(inp.count == 1 || inp.times < 1) {
+            move(&pl, mov, inp.arg);
+	} else {
+	    for(int i = 0; i < inp.times; i++) {
+		    move(&pl, mov, inp.arg);
+	    }
+	}
+	free(inp.arg);
         printBoard();
     }
     return EXIT_SUCCESS;
 }
-void move(entity *pl, enum Movement mov) {
-    for (int i = 0; i < ent_sz; i++) {
-        if (!entAtIndex(i)->doCollide)
-            continue;
-        if (moveBlocked(*pl, *entAtIndex(i), mov))
-            return;
-    }
-    switch (mov) {
-        case QUIT:
-            if (isDebug)
-                puts("Exiting...");
-            running = false;
-            return;
-        case UP:
-            if (isDebug)
-                puts("U");
-            if (pl->position.y > 0)
-                pl->position.y--;
-            break;
-        case DOWN:
-            if (isDebug)
-                puts("D");
-            if (pl->position.y + 1 < B_HEI)
-                pl->position.y++;
-            break;
-        case LEFT:
-            if (isDebug)
-                puts("L");
-            if (pl->position.x > 0)
-                pl->position.x--;
-            break;
-        case RIGHT:
-            if (isDebug)
-                puts("R");
-            if (pl->position.x + 1 < B_WID - 1)
-                pl->position.x++;
-            break;
-        case SAVE:
-            printf("Filename: ");
-            char buff[16];
-            scanf("%15s", buff);
-            saveEntities(buff, *pl);
-            break;
-        case NONE:
-            fprintf(stderr, "Command not found\n");
-            if (isDebug)
-                puts("NONE");
-            fflush(stderr);
-            break;
-        default:
-            break;
-    }
-}
-
-bool moveBlocked(entity pl, entity box, enum Movement mov) {
-    pos boxPos = box.position;
-    pos plPos = pl.position;
-    pos diff = pDiff(plPos, boxPos);
-    printf("diff: x %d y %d\npl x %d y %d\n"
-           "box x %d y %d\n",
-           diff.x, diff.y, plPos.x, plPos.y,
-           boxPos.x,boxPos.y);
-    if(pSumU(diff) != 1)
-        goto f;
-    if(mov == UP || mov == DOWN) {
-        if(diff.y == 0)
-            goto f;
-        if(mov == UP) {
-            if(diff.y == 1)
-                goto t;
-        } else {
-            if(diff.y == -1)
-                goto t;
-        }
-    } else if(mov == LEFT || mov == RIGHT) {
-        if (diff.x == 0)
-            goto f;
-        if (mov == RIGHT) {
-            if (diff.x == -1)
-                goto t;
-        } else {
-            if (diff.x == 1)
-                goto t;
-        }
-    }
-f:
-    return false;
-t:
-    collHandler(box.collisionType, box, pl, mov);
-    return true;
-}
-
-void saveEntities(const char *name, entity  pl) {
-    FILE *file = fopen(name, "wb");
-    if(!file) {
-        fprintf(stderr, "Couldn't open file: %s\n", name);
-        return;
-    }
-    fwrite(&ent_sz, 1, sizeof(unsigned), file);
-    fwrite(&pl, 1, sizeof(entity), file);
-    for(int i = 0; i<ent_sz;i++) {
-        fwrite(&entities[i], 1, sizeof(entity), file);
-    }
-    /*for(int i = 0; i < ent_sz; i++) {
-        fwrite(*entAtIndex(i), 1)
-    }*/
-    fclose(file);
-}
-void loadEntities(const char *name, entity *pl) {
-    FILE *file = fopen(name, "rb");
-    if (!file) {
-        fprintf(stderr, "Couldn't open file: %s\n", name);
-        return;
-    }
-    unsigned sz;
-    fread(&sz, 1, sizeof(unsigned), file);
-    ent_sz = sz;
-    fwrite(pl, 1, sizeof(entity), file);
-    for (int i = 0; i < ent_sz; i++) {
-        fread(&entities[i], 1, sizeof(entity), file);
-        //printf("%d %d %c\n", entities[i].position.x, entities[i].position.y, entities[i].icon);
-    }
-    fclose(file);
-}
-
-enum Movement strToMov(const char *in) {
-    if(strnlen(in, 2) == 1) {
-        switch (in[0]) {
-            case 'q': return QUIT;
-            case 'w': return UP;
-            case 'a': return LEFT;
-            case 's': return DOWN;
-            case 'd': return RIGHT;
-
-            case 'u': return UP;
-            case 'l': return LEFT;
-            case 'r': return RIGHT;
-            default : break;
-        }
-    }
-    if(strncasecmp(in, "quit", 4) == 0 || strncasecmp(in, "exit", 4) == 0) {
-        return QUIT;
-    } else if(strncasecmp(in, "up", 2) == 0) {
-        return UP;
-    } else if(strncasecmp(in, "down", 4) == 0) {
-        return DOWN;
-    } else if(strncasecmp(in, "left", 4) == 0) {
-        return LEFT;
-    } else if(strncasecmp(in, "right", 5) == 0) {
-        return RIGHT;
-    } else if(strncasecmp(in, "save", 4) == 0) {
-        return SAVE;
-    } else {
-        return NONE;
-    }
+struct Input input(const char *prompt) {
+	char *buff = (char*)malloc(16);
+	if(!buff)
+		goto allErr;
+	printf("%3s", prompt);
+	if(fgets(buff, 15, stdin) == NULL)
+		__defFn();
+	char *str = malloc(7);
+	char *arg = malloc(7);
+	int times = 0;
+	if(!str || !arg)
+		goto allErr;
+	int count = sscanf(buff, "%6s %d %s", str, &times, arg);
+	printf("str %s count %d times %d arg %s\nmov %s\n",
+		str,count,times,arg,buff);
+	free(buff);
+	return (struct Input) { buff, count, times, arg };
+allErr:
+	fprintf(stderr, "Couldn't allocate memory\n");
+	return (struct Input) { NULL, 0, 0, NULL };
 }
 
 void printBoard() {
@@ -241,7 +123,7 @@ void printBoard() {
 }
 
 /* WARNING: Do not call alloc, allocArr_add, ect.
- * Reason: allocArr_ctor not called yet             */
+ * Reason:  allocArr_ctor not called yet             */
 __attribute__((used)) __attribute__((constructor)) void startUp() {
     srand(time(NULL));
 }
