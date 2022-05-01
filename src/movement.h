@@ -7,11 +7,11 @@
 #define B_HEI 5
 
 enum Movement {
-    QUIT, NONE,
-    UP, DOWN, LEFT, RIGHT,
-    SAVE, LOAD
+	QUIT, NONE,
+	UP, DOWN, LEFT, RIGHT,
+	SAVE, LOAD
 };
 enum Movement strToMov(const char *in);
-void move(entity *pl, enum Movement mov, const char *arg);
+void move(entity *pl, enum Movement mov/*, const char *arg*/);
 
 #endif//_NTR_MOVEMENT_H_

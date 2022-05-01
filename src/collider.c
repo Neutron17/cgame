@@ -6,13 +6,13 @@
 #include <stdio.h>
 
 void (*const HandlerLUT[])(entity rec, entity coller, enum Movement side) = {
-        __defFn, boxCollHandler
+		__defFn, boxCollHandler
 };
 
 void collHandler(enum CollType coll, entity rec, entity coller, enum Movement side) {
-    HandlerLUT[coll](rec, coller, side);
+	HandlerLUT[coll](rec, coller, side);
 }
 
 void boxCollHandler(entity rec, entity coller, enum Movement side) {
-    printf("Collided %d %d\n", rec.position.x, rec.position.y);
+	printf("Collided %d %d\n", rec.position.x, rec.position.y);
 }

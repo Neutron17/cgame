@@ -2,8 +2,8 @@
 #define _NTR_POSITION_H_
 
 typedef struct {
-    int y;
-    int x;
+	int y;
+	int x;
 } pos;
 
 // Position arithmetic

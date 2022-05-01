@@ -11,10 +11,10 @@ typedef struct entity entity;
 void __defFn();
 
 struct entity {
-    pos  position;
-    char icon;
-    bool doCollide;
-    enum CollType collisionType;
+	pos  position;
+	char icon;
+	bool doCollide;
+	enum CollType collisionType;
 };
 
 extern entity *entities;
