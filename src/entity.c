@@ -68,15 +68,11 @@ void saveEntities(const char *name, entity  pl) {
 	}
 	fwrite(&ent_sz, 1, sizeof(unsigned), file);
 	fwrite(&pl, 1, sizeof(entity), file);
-	for(int i = 0; i<ent_sz;i++) {
+	for(int i = 0; i<ent_sz;i++)
 		fwrite(&entities[i], 1, sizeof(entity), file);
-	}
-	/*for(int i = 0; i < ent_sz; i++) {
-		fwrite(*entAtIndex(i), 1)
-	}*/
 	fclose(file);
 }
-void loadEntities(const char *name, entity *pl) {
+void loadEntities(const char *name, entity *player) {
 	char fname[32];
 	strcpy(fname, saveDir);
 	strcat(fname, name);
@@ -88,11 +84,9 @@ void loadEntities(const char *name, entity *pl) {
 	unsigned sz;
 	fread(&sz, 1, sizeof(unsigned), file);
 	ent_sz = sz;
-	fwrite(pl, 1, sizeof(entity), file);
-	for (int i = 0; i < ent_sz; i++) {
+	fread(player, 1, sizeof(entity), file);
+	for (int i = 0; i < ent_sz; i++)
 		fread(&entities[i], 1, sizeof(entity), file);
-		//printf("%d %d %c\n", entities[i].position.x, entities[i].position.y, entities[i].icon);
-	}
 	fclose(file);
 }
 

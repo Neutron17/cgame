@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "collider.h"
+#include "common.h"
 
 extern const bool isDebug;
 extern bool running;
@@ -87,15 +88,17 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 			char buff[16];
 			scanf("%15s", buff);
 			saveEntities(buff, *pl);
+			afterscanf();
 			break;
-	}
-	case LOAD:{
+		}
+		case LOAD:{
 			printf("Name: ");
 			char buff[16];
 			scanf("%15s", buff);
 			loadEntities(buff, pl);
-		break;
-	}
+			afterscanf();
+			break;
+		}
 		case NONE:
 			fprintf(stderr, "Command not found\n");
 			if (isDebug)

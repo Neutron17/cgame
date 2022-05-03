@@ -10,15 +10,9 @@ EXEC = $(BIN)/$(PNAME)
 INCFLAGS  = -Isrc/
 
 CCFLAGS += $(INCFLAGS)
-CCFLAGS += -Ofast
-#CCFLAGS += -fblocks
-#CCFLAGS += -s
-#CCFLAGS += -ffast-math
-#CCFLAGS += -nostartfiles
-#CCFLAGS += -nodefaultlibs
+CCFLAGS += -O0
 
 LDFLAGS  = $(INCFLAGS)
-#LDFLAGS += -lBlocksRuntime
 
 all: build
 

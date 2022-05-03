@@ -8,7 +8,7 @@
 #include "movement.h"
 #include "position.h"
 #include "entity.h"
-#include "collider.h"
+#include "common.h"
 
 const bool isDebug = true;
 bool running = true;
@@ -21,7 +21,6 @@ void printBoard();
 
 int main(int argc, const char *argv[]) {
 	srand(time(NULL));
-	//loadConfigs();
 	saveDir = alloc(32);
 	strcpy(saveDir, "saves/");
 	printf("config: %s\n", saveDir);
@@ -44,15 +43,12 @@ int main(int argc, const char *argv[]) {
 			addEntity((entity) {{rand() % 5, rand() % 5}, 'O', false});
 			break;
 	}
-	//loadEntities("foo.dat");
-	//char inp[INP_SZ], arg[INP_SZ];
-	//int times;
 	enum Movement mov = NONE;
 	int count = 0, times = 0;
-	//struct Input inp;
 	char buff[32] = "";
 	char str[16] = "", arg[7] = "";
 	printBoard();
+	afterscanf();
 	while (running) {
 input:
 		printf("> ");
