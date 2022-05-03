@@ -6,18 +6,15 @@
 #include "optarg.h"
 #include "collType.h"
 
-typedef struct entity entity;
-
 void __defFn();
 
-struct entity {
+typedef struct entity {
 	pos  position;
 	char icon;
 	bool doCollide;
 	enum CollType collisionType;
-};
+} entity;
 
-extern entity *entities;
 
 #define _entity2(pos, icon) (entity) { pos, icon, true, DEF }
 #define _entity3(pos, icon, collide) (entity) { pos, icon, collide, DEF }
@@ -27,9 +24,6 @@ extern entity *entities;
 extern size_t ent_sz;
 
 void setUpEntity(size_t n, entity *player);
-void updatePl(entity *player);
-// is position in entities
-bool pinents(pos p);
 // Returns: index
 unsigned addEntity(entity ent);
 char iconAtPos(pos p);

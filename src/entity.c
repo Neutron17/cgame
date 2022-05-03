@@ -18,12 +18,9 @@ void setUpEntity(size_t n, entity *player) {
 		exit(1);
 	}
 	entMax = (int)n;
-	for(int i = 0; i < 9; i++) {
+	for(int i = 0; i < n; i++) {
 		entities[i].icon = '?';
 	}
-}
-void updatePl(entity *player) {
-	pl = player;
 }
 // is position in entities
 bool pinents(pos p) {

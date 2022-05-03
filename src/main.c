@@ -17,14 +17,15 @@ void printBoard();
 
 #define PL_ICON 'X'
 #define BX_ICON 'W'
+#define TIMES_MAX 10
 #define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, BOX})
 
 int main(int argc, const char *argv[]) {
-	srand(time(NULL));
+	srandom(time(NULL));
 	saveDir = alloc(32);
 	strcpy(saveDir, "saves/");
 	printf("config: %s\n", saveDir);
-	entity pl = Entity(((pos) {1, 2}), PL_ICON, false, DEF);
+	entity pl = (entity) { ((pos) {1, 2}), PL_ICON, false, DEF };
 	setUpEntity(9, &pl);
 	printf("Load[0] or create new[1]?\n");
 	switch (getchar()) {
@@ -33,14 +34,13 @@ int main(int argc, const char *argv[]) {
 			char buff[16];
 			scanf("%15s", buff);
 			loadEntities(buff, &pl);
-			updatePl(&pl);
 			break;
 		default:
 			fprintf(stderr, "Invalid option, new game\n");
 		case '1':
-			newBox(rand() % 5, rand() % 5);
-			newBox(rand() % 5, rand() % 5);
-			addEntity((entity) {{rand() % 5, rand() % 5}, 'O', false});
+			newBox(random() % 5, random() % 5);
+			newBox(random() % 5, random() % 5);
+			addEntity((entity) {{random() % 5, random() % 5}, 'O', false});
 			break;
 	}
 	enum Movement mov = NONE;
@@ -61,15 +61,16 @@ input:
 			puts("Invalid option");
 			goto input;
 		}
-		if (count == 1 || times < 1) {
+		if(times < 1)
+			times = 1;
+		else if(times > TIMES_MAX)
+			times = TIMES_MAX;
+		for(int i = 0; i < times; i++) {
 			move(&pl, mov);
-		} else {
-			for (int i = 0; i < times; i++) {
-				move(&pl, mov);
-			}
 		}
 		strcpy(str, "");
 		strcpy(arg, "");
+		times = 1;
 		printBoard();
 	}
 	return EXIT_SUCCESS;
