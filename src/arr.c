@@ -27,8 +27,11 @@ void *acalloc(size_t __nmemb, size_t __size) {
     return x;
 }
 
+#include "config.h"
+
 __attribute__((used)) enum ArrErrors __allocArr_ctor() {
-    printf("Ctor\n");
+	if(isDebug)
+    	printf("Ctor\n");
     //void **arrr = NULL;
     //arrr = (void**)malloc(1*sz);
     //arrr[0] = (void *)69;
@@ -60,6 +63,10 @@ __attribute__((used)) enum ArrErrors __allocArr_dtor() {
     arr.arr = NULL;
     if(isDebug)
         printf("Successfuly freed all\n");
+	for(int i = 0; i<MOV_SZ;i++) {
+		free(movs[i].names);
+		free(movs[i].chnames);
+	}
     return SUCCESS;
 }
 enum ArrErrors allocArr_add(void *n) {

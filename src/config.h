@@ -4,8 +4,10 @@
 
 #ifndef _NTR_CONFIG_H_
 #define _NTR_CONFIG_H_ 1
+#include "movement.h"
 
 extern char *saveDir;
+extern struct sermov movs[9];
 
 void loadConfigs();
 

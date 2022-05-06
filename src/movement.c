@@ -3,6 +3,7 @@
 #include <string.h>
 #include "collider.h"
 #include "common.h"
+#include "config.h"
 
 extern const bool isDebug;
 extern bool running;
@@ -87,7 +88,7 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 			printf("Name: ");
 			char buff[16];
 			scanf("%15s", buff);
-			saveEntities(buff, *pl);
+			saveEntities(buff);
 			afterscanf();
 			break;
 		}
@@ -99,6 +100,11 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 			afterscanf();
 			break;
 		}
+		case RESTART:
+			for(int i = 0; i < ent_sz; i++) {
+				entAtIndex(i)->position = (pos) { random() % 5, random() % 5 };
+			}
+			break;
 		case NONE:
 			fprintf(stderr, "Command not found\n");
 			if (isDebug)
@@ -112,6 +118,31 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 
 enum Movement strToMov(const char *in) {
 	if(strnlen(in, 2) == 1) {
+		for (int i = 0; i < MOV_SZ; i++) {
+			fprintf(stderr, "%s\n", movs[i].chnames);
+			//printf("%s\n", movs[i].chnames);
+			for (int j = 0; j < strlen(movs[i].chnames); j++) {
+				//printf("%c\n", movs[i].chnames[j]);
+				if (movs[i].chnames[j] == in[0]) {
+					return movs[i].type;
+				}
+			}
+		}
+		return NONE;
+	}
+	for (int i = 0; i < MOV_SZ; i++) {
+		if(movs[i].multiple) {
+			if(strncasecmp(movs[i].names+movs[i].lens[0], in, movs[i].lens[0]) == 0 ||
+			   strncasecmp(movs[i].names+movs[i].lens[1], in, movs[i].lens[1]) == 0) {
+				return movs[i].type;
+			}
+		}
+		if(strncasecmp(movs[i].names, in, 16) == 1) {
+			return movs[i].type;
+		}
+	}
+
+	/*if(strnlen(in, 2) == 1) {
 		switch (in[0]) {
 			case 'q': return QUIT;
 			case 'w': return UP;
@@ -138,8 +169,10 @@ enum Movement strToMov(const char *in) {
 	} else if(strncasecmp(in, "save", 4) == 0) {
 		return SAVE;
 	} else if(strncasecmp(in, "load", 4) == 0) {
-	return LOAD;
+		return LOAD;
+	} else if(strncasecmp(in, "restart", 7) == 0 || strncasecmp(in, "reset", 5) == 0) {
+		return RESTART;
 	} else {
 		return NONE;
-	}
+	}*/
 }

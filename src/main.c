@@ -10,7 +10,7 @@
 #include "entity.h"
 #include "common.h"
 
-const bool isDebug = true;
+const bool isDebug = false;
 bool running = true;
 
 void printBoard();
@@ -22,9 +22,7 @@ void printBoard();
 
 int main(int argc, const char *argv[]) {
 	srandom(time(NULL));
-	saveDir = alloc(32);
-	strcpy(saveDir, "saves/");
-	printf("config: %s\n", saveDir);
+	loadConfigs();
 	entity pl = (entity) { ((pos) {1, 2}), PL_ICON, false, DEF };
 	setUpEntity(9, &pl);
 	printf("Load[0] or create new[1]?\n");
@@ -44,7 +42,7 @@ int main(int argc, const char *argv[]) {
 			break;
 	}
 	enum Movement mov = NONE;
-	int count = 0, times = 0;
+	int times = 0;
 	char buff[32] = "";
 	char str[16] = "", arg[7] = "";
 	printBoard();
@@ -56,7 +54,7 @@ input:
 			fprintf(stderr, "No input\n");
 			goto input;
 		}
-		count = sscanf(buff, "%15s %d", str, &times);
+		sscanf(buff, "%15s %d", str, &times);
 		if ((mov = strToMov(str)) == NONE) {
 			puts("Invalid option");
 			goto input;

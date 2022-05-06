@@ -2,7 +2,7 @@
 #ifndef _NTR_ALL_ARR_H_
 #define _NTR_ARRCTOR_H_ 1
 
-#define ARR_SIZE 5
+#define ARR_SIZE 25
 #include <stdbool.h>
 #include <stdlib.h>
 #include "optarg.h"

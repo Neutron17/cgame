@@ -54,7 +54,8 @@ char iconAtPos(pos p) {
 entity *entAtIndex(unsigned index) {
 	return &entities[index];
 }
-void saveEntities(const char *name, entity  pl) {
+// Serialization
+void saveEntities(const char *name) {
 	char fname[32];
 	strcpy(fname, saveDir);
 	strcat(fname, name);
@@ -64,7 +65,7 @@ void saveEntities(const char *name, entity  pl) {
 		return;
 	}
 	fwrite(&ent_sz, 1, sizeof(unsigned), file);
-	fwrite(&pl, 1, sizeof(entity), file);
+	fwrite(pl, 1, sizeof(entity), file);
 	for(int i = 0; i<ent_sz;i++)
 		fwrite(&entities[i], 1, sizeof(entity), file);
 	fclose(file);
