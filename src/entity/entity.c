@@ -1,9 +1,9 @@
 #include "entity.h"
 #include <stdio.h>
 #include <string.h>
-#include "arr.h"
-#include "config.h"
-#include "position.h"
+#include "arr/arr.h"
+#include "config/config.h"
+#include "position/position.h"
 
 entity *entities = NULL;
 size_t ent_sz = 0;

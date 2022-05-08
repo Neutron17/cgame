@@ -3,12 +3,12 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
-#include "config.h"
-#include "arr.h"
-#include "movement.h"
-#include "position.h"
-#include "entity.h"
-#include "common.h"
+#include "config/config.h"
+#include "arr/arr.h"
+#include "movement/movement.h"
+#include "position/position.h"
+#include "entity/entity.h"
+#include "common/common.h"
 
 const bool isDebug = false;
 bool running = true;
@@ -18,12 +18,12 @@ void printBoard();
 #define PL_ICON 'X'
 #define BX_ICON 'W'
 #define TIMES_MAX 10
-#define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, BOX})
+#define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, false, BOX})
 
 int main(int argc, const char *argv[]) {
 	srandom(time(NULL));
 	loadConfigs();
-	entity pl = (entity) { ((pos) {1, 2}), PL_ICON, false, DEF };
+	entity pl = (entity) { ((pos) {1, 2}), PL_ICON, false, true, DEF };
 	setUpEntity(9, &pl);
 	printf("Load[0] or create new[1]?\n");
 	switch (getchar()) {
@@ -38,13 +38,12 @@ int main(int argc, const char *argv[]) {
 		case '1':
 			newBox(random() % 5, random() % 5);
 			newBox(random() % 5, random() % 5);
-			addEntity((entity) {{random() % 5, random() % 5}, 'O', false});
+			addEntity((entity) {{random() % 5, random() % 5}, 'O', false, true, END});
 			break;
 	}
 	enum Movement mov = NONE;
 	int times = 0;
-	char buff[32] = "";
-	char str[16] = "", arg[7] = "";
+	char buff[32] = "", str[16] = "", arg[7] = "";
 	printBoard();
 	afterscanf();
 	while (running) {

@@ -1,7 +1,7 @@
 #ifndef _NTR_MOVEMENT_H_
 #define _NTR_MOVEMENT_H_ 1
 
-#include "entity.h"
+#include "entity/entity.h"
 
 #define B_WID 6
 #define B_HEI 5

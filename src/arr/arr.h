@@ -5,7 +5,7 @@
 #define ARR_SIZE 25
 #include <stdbool.h>
 #include <stdlib.h>
-#include "optarg.h"
+#include "common/optarg.h"
 
 // Return values
 enum ArrErrors {

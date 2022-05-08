@@ -1,9 +1,9 @@
 #include "movement.h"
 #include <stdio.h>
 #include <string.h>
-#include "collider.h"
-#include "common.h"
-#include "config.h"
+#include "collision/collider.h"
+#include "common/common.h"
+#include "config/config.h"
 
 extern const bool isDebug;
 extern bool running;
@@ -12,10 +12,12 @@ bool moveBlocked(entity pl, entity box, enum Movement mov) {
 	pos boxPos = box.position;
 	pos plPos = pl.position;
 	pos diff = pDiff(plPos, boxPos);
-	printf("diff: x %d y %d\npl x %d y %d\n"
-		   "box x %d y %d\n",
-		   diff.x, diff.y, plPos.x, plPos.y,
-		   boxPos.x,boxPos.y);
+	if(isDebug) {
+		printf("diff: x %d y %d\npl x %d y %d\n"
+			   "box x %d y %d\n",
+			   diff.x, diff.y, plPos.x, plPos.y,
+			   boxPos.x, boxPos.y);
+	}
 	if(pSumU(diff) != 1)
 		goto f;
 	if(mov == UP || mov == DOWN) {
@@ -42,16 +44,18 @@ bool moveBlocked(entity pl, entity box, enum Movement mov) {
 f:
 	return false;
 t:
-	collHandler(box.collisionType, box, pl, mov);
+	collHandler(box.collisionType, box, &pl, mov);
 	return true;
 }
 
 void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 	//printf("%p\n", arg);
 	for (int i = 0; i < ent_sz; i++) {
-		if (!entAtIndex(i)->doCollide)
-			continue;
-		if (moveBlocked(*pl, *entAtIndex(i), mov))
+		entity *ent = entAtIndex(i);
+		if (!ent->blockColl)
+			if(!ent->canOverlap)
+				continue;
+		if (moveBlocked(*pl, *ent, mov) && !ent->canOverlap)
 			return;
 	}
 	switch (mov) {
@@ -119,7 +123,7 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 enum Movement strToMov(const char *in) {
 	if(strnlen(in, 2) == 1) {
 		for (int i = 0; i < MOV_SZ; i++) {
-			fprintf(stderr, "%s\n", movs[i].chnames);
+			//fprintf(stderr, "%s\n", movs[i].chnames);
 			//printf("%s\n", movs[i].chnames);
 			for (int j = 0; j < strlen(movs[i].chnames); j++) {
 				//printf("%c\n", movs[i].chnames[j]);

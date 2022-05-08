@@ -2,16 +2,17 @@
 #define _NTR_ENTITY_H_
 #include <stdbool.h>
 #include <stdlib.h>
-#include "position.h"
-#include "optarg.h"
-#include "collType.h"
+#include "position/position.h"
+#include "common/optarg.h"
+#include "collision/collType.h"
 
 void __defFn();
 
 typedef struct entity {
 	pos  position;
 	char icon;
-	bool doCollide;
+	bool blockColl;
+	bool canOverlap;
 	enum CollType collisionType;
 } entity;
 

@@ -1,5 +1,5 @@
 #include "config.h"
-#include "arr.h"
+#include "arr/arr.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

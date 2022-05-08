@@ -27,7 +27,7 @@ void *acalloc(size_t __nmemb, size_t __size) {
 	return x;
 }
 
-#include "config.h"
+#include "config/config.h"
 
 __attribute__((used)) enum ArrErrors __allocArr_ctor() {
 	if(isDebug)
