@@ -141,38 +141,5 @@ enum Movement strToMov(const char *in) {
 			return movs[i].type;
 		}
 	}
-
-	/*if(strnlen(in, 2) == 1) {
-		switch (in[0]) {
-			case 'q': return QUIT;
-			case 'w': return UP;
-			case 'a': return LEFT;
-			case 's': return DOWN;
-			case 'd': return RIGHT;
-
-			case 'u': return UP;
-			case 'l': return LEFT;
-			case 'r': return RIGHT;
-			default : break;
-		}
-	}
-	if(strncasecmp(in, "quit", 4) == 0 || strncasecmp(in, "exit", 4) == 0) {
-		return QUIT;
-	} else if(strncasecmp(in, "up", 2) == 0) {
-		return UP;
-	} else if(strncasecmp(in, "down", 4) == 0) {
-		return DOWN;
-	} else if(strncasecmp(in, "left", 4) == 0) {
-		return LEFT;
-	} else if(strncasecmp(in, "right", 5) == 0) {
-		return RIGHT;
-	} else if(strncasecmp(in, "save", 4) == 0) {
-		return SAVE;
-	} else if(strncasecmp(in, "load", 4) == 0) {
-		return LOAD;
-	} else if(strncasecmp(in, "restart", 7) == 0 || strncasecmp(in, "reset", 5) == 0) {
-		return RESTART;
-	} else {
-		return NONE;
-	}*/
+	return NONE;
 }

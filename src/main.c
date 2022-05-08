@@ -77,7 +77,6 @@ void printBoard() {
 	for(int i = 0; i<B_WID+1;i++)
 		printf("-");
 	puts("");
-	bool plSeen = false;
 	for(int y = 0; y < B_HEI; y++) {
 		printf("|");
 		for (int x = 0; x < B_WID-1; x++) {
