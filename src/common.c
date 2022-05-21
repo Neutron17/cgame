@@ -1,7 +1,3 @@
-//
-// Created by neutron17 on 2022.05.03..
-//
-
 #include "common.h"
 #include <stdio.h>
 

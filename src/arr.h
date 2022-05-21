@@ -2,15 +2,14 @@
 #ifndef _NTR_ALL_ARR_H_
 #define _NTR_ARRCTOR_H_ 1
 
-#define ARR_SIZE 25
+#define ARR_SIZE 50
 #include <stdbool.h>
 #include <stdlib.h>
-#include "common/optarg.h"
+#include "optarg.h"
 
 // Return values
 enum ArrErrors {
-    SUCCESS = 0,
-    COULDNT_ALLOCATE,
+    ARR_SUCCESS = 0,
     MAX_ITEMS_REACHED,
     SHR,
     SHR_FREE,
@@ -22,9 +21,9 @@ enum ArrErrors {
 void *alloc(size_t size);
 void *acalloc(size_t __nmemb, size_t __size);
 // Constructor
-__attribute__((used)) enum ArrErrors __attribute__((constructor)) __allocArr_ctor();
+__attribute__((used)) void __attribute__((constructor)) __allocArr_ctor();
 // Destructor
-__attribute__((used)) enum ArrErrors __attribute__((destructor)) __allocArr_dtor();
+__attribute__((used)) void __attribute__((destructor)) __allocArr_dtor();
 // Control methods
 enum ArrErrors  allocArr_add (void *n);
 enum ArrErrors  allocArr_adds(unsigned sz, void *n, ...);

@@ -1,2 +1,3 @@
 saveDir:saves/
 movNames:movs.txt
+logFile:log.txt

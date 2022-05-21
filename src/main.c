@@ -1,44 +1,59 @@
+#include "arr.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
-#include "config/config.h"
-#include "arr/arr.h"
-#include "movement/movement.h"
-#include "position/position.h"
-#include "entity/entity.h"
-#include "common/common.h"
+#include <getopt.h>
+#include <sys/stat.h>
+#include "config.h"
+#include "movement.h"
+#include "position.h"
+#include "entity.h"
+#include "common.h"
+#include "exitCodes.h"
+#include "args.h"
+#include "error.h"
 
-const bool isDebug = false;
+bool isDebug = true;
 bool running = true;
+bool beforeAlloc = false;
 
 void printBoard();
+unsigned parseArgs(int argc, char *argv[]);
+bool file_exists (char *filename);
 
 #define PL_ICON 'X'
 #define BX_ICON 'W'
 #define TIMES_MAX 10
 #define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, false, BOX})
 
-int main(int argc, const char *argv[]) {
+int main(int argc, char *argv[]) {
+	errno = 0;
 	srandom(time(NULL));
-	loadConfigs();
+	unsigned args = parseArgs(argc, argv);
+	loadConfigs(args);
 	entity pl = (entity) { ((pos) {1, 2}), PL_ICON, false, true, DEF };
-	setUpEntity(9, &pl);
+	setUpEntity(50, &pl);
 	printf("Load[0] or create new[1]?\n");
 	switch (getchar()) {
 		case '0':
 			printf("Name: ");
 			char buff[16];
 			scanf("%15s", buff);
-			loadEntities(buff, &pl);
-			break;
+			if (!loadEntities(buff, &pl)) {
+				break;
+			}
 		default:
 			fprintf(stderr, "Invalid option, new game\n");
 		case '1':
-			newBox(random() % 5, random() % 5);
-			newBox(random() % 5, random() % 5);
-			addEntity((entity) {{random() % 5, random() % 5}, 'O', false, true, END});
+			//newBox(random() % B_HEI, random() % B_WID);
+			for (int i = 0; i < 9; i++) {
+				pos tmp = unusedPos();
+				newBox(tmp.y, tmp.x);
+			}
+			pos tmp = unusedPos();
+			addEntity((entity) {{tmp.y, tmp.x}, 'O', false, true, END});
 			break;
 	}
 	enum Movement mov = NONE;
@@ -70,20 +85,78 @@ input:
 		times = 1;
 		printBoard();
 	}
-	return EXIT_SUCCESS;
+	return EX_SUCC;
 }
+
+extern char *logFile;
+unsigned parseArgs(int argc, char *argv[]) {
+	int c;
+	int args = 0;
+	while((c = getopt(argc, argv, "Vdvhl:s:")) != -1) {
+		switch(c) {
+			case 'v':
+			case 'd':
+				isDebug = true;
+				break;
+			case 'V':
+				printf("Version: %f\n", VERSION);
+				beforeAlloc = true;
+				exit(0);
+			case 'h':
+				puts("-V: version\n"
+					 "-v or -d: debug\n"
+					 "-l <arg(32)>: set logfile\n"
+					 "-s <arg(32)>: set save directory"
+					 );
+				break;
+			case 'l': {
+				logFile = alloc(32);
+				if(file_exists(optarg) && strnlen(optarg, CONF_LEN+1) < CONF_LEN) {
+					strncpy(logFile, optarg, CONF_LEN);
+				} else {
+					strncpy(logFile, "log.txt", 7);
+				}
+				args |= A_LOG;
+				break;
+			}
+			case 's': {
+				saveDir = alloc(32);
+				{
+					struct stat sb;
+					if (strnlen(optarg, CONF_LEN+1) < CONF_LEN && stat(optarg, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+						strncpy(saveDir, optarg, CONF_LEN);
+					} else {
+						strncpy(saveDir, "saves/", 5);
+					}
+				}
+				args |= A_SDIR;
+				break;
+			}
+			default:
+				fprintf(stderr, "Unknown argument\n");
+				exit(EX_UNK_ARG);
+		}
+	}
+	return args;
+}
+
 void printBoard() {
-	for(int i = 0; i<B_WID+1;i++)
+	for(int i = 0; i<B_WID+2;i++)
 		printf("-");
 	puts("");
 	for(int y = 0; y < B_HEI; y++) {
 		printf("|");
-		for (int x = 0; x < B_WID-1; x++) {
+		for (int x = 0; x < B_WID; x++) {
 				printf("%c", iconAtPos((pos){y,x}));
 		}
 		printf("|\n");
 	}
-	for(int i = 0; i<B_WID+1;i++)
+	for(int i = 0; i<B_WID+2;i++)
 		printf("-");
 	puts("");
+}
+
+bool file_exists (char *filename) {
+	struct stat   buffer;
+	return (stat (filename, &buffer) == 0);
 }

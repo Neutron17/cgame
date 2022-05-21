@@ -2,18 +2,18 @@
 #define _NTR_ENTITY_H_
 #include <stdbool.h>
 #include <stdlib.h>
-#include "position/position.h"
-#include "common/optarg.h"
-#include "collision/collType.h"
+#include "position.h"
+#include "optarg.h"
+#include "collType.h"
 
 void __defFn();
 
 typedef struct entity {
-	pos  position;
-	char icon;
-	bool blockColl;
-	bool canOverlap;
-	enum CollType collisionType;
+	pos  position; // 8
+	char icon;// 1
+	bool blockColl;//1
+	bool canOverlap;//1
+	enum CollType collisionType;//1
 } entity;
 
 
@@ -28,9 +28,9 @@ void setUpEntity(size_t n, entity *player);
 // Returns: index
 unsigned addEntity(entity ent);
 char iconAtPos(pos p);
-entity *entAtIndex(unsigned index);
+entity *entAtIndex(int index);
 void printEnts();
 void saveEntities(const char *name);
-void loadEntities(const char *name, entity *pl);
+bool loadEntities(const char *name, entity *pl);
 
 #endif //_NTR_ENTITY_H_

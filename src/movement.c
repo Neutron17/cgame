@@ -1,9 +1,9 @@
 #include "movement.h"
 #include <stdio.h>
 #include <string.h>
-#include "collision/collider.h"
-#include "common/common.h"
-#include "config/config.h"
+#include "collider.h"
+#include "common.h"
+#include "config.h"
 
 extern const bool isDebug;
 extern bool running;
@@ -85,7 +85,7 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 		case RIGHT:
 			if (isDebug)
 				puts("R");
-			if (pl->position.x + 1 < B_WID - 1)
+			if (pl->position.x+1 < B_WID)
 				pl->position.x++;
 			break;
 		case SAVE: {
@@ -105,8 +105,9 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 			break;
 		}
 		case RESTART:
+			pl->position = unusedPos();
 			for(int i = 0; i < ent_sz; i++) {
-				entAtIndex(i)->position = (pos) { random() % 5, random() % 5 };
+				entAtIndex(i)->position = (pos) { (int)random() % B_HEI, (int)random() % B_WID };
 			}
 			break;
 		case NONE:
@@ -136,14 +137,25 @@ enum Movement strToMov(const char *in) {
 	}
 	for (int i = 0; i < MOV_SZ; i++) {
 		if(movs[i].multiple) {
-			if(strncasecmp(movs[i].names+movs[i].lens[0], in, movs[i].lens[0]) == 0 ||
-			   strncasecmp(movs[i].names+movs[i].lens[1], in, movs[i].lens[1]) == 0) {
+			if(strncasecmp(movs[i].names, in, movs[i].lens[0]) == 0 ||
+			   strncasecmp(movs[i].names+movs[i].lens[0], in, movs[i].lens[1]) == 0) {
 				return movs[i].type;
 			}
-		}
-		if(strncasecmp(movs[i].names, in, 16) == 1) {
+		} else if (strncasecmp(movs[i].names, in, 16) == 0) {
 			return movs[i].type;
 		}
 	}
 	return NONE;
+}
+
+pos unusedPos(void) {
+	pos tmp = {(int) random() % B_HEI, (int) random() % B_WID};;
+	for (int j = -1; j < (int) ent_sz; j++) {
+		if (pSame(entAtIndex(j)->position, tmp))
+			goto r;
+		continue;
+r:
+		tmp = (pos) {(int) random() % B_HEI, (int) random() % B_WID};
+	}
+	return tmp;
 }

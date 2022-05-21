@@ -1,9 +1,10 @@
 #include "entity.h"
 #include <stdio.h>
 #include <string.h>
-#include "arr/arr.h"
-#include "config/config.h"
-#include "position/position.h"
+#include "arr.h"
+#include "config.h"
+#include "position.h"
+#include "error.h"
 
 entity *entities = NULL;
 size_t ent_sz = 0;
@@ -14,7 +15,7 @@ void __defFn() {  }
 void setUpEntity(size_t n, entity *player) {
 	pl = player;
 	if((entities = acalloc(sizeof(entity), n)) == NULL) {
-		fprintf(stderr, "Couldn't allocate entities\n");
+		ERR("Couldn't allocate entities\n");
 		exit(1);
 	}
 	entMax = (int)n;
@@ -51,7 +52,11 @@ char iconAtPos(pos p) {
 	}
 	return '?';
 }
-entity *entAtIndex(unsigned index) {
+entity *entAtIndex(int index) {
+	if(index == -1) {
+		fflush(stderr);
+		return pl;
+	}
 	return &entities[index];
 }
 // Serialization
@@ -61,7 +66,7 @@ void saveEntities(const char *name) {
 	strcat(fname, name);
 	FILE *file = fopen(fname, "wb");
 	if(!file) {
-		fprintf(stderr, "Couldn't open file: %s\n", name);
+		ERR_A("Couldn't open file: %s\n", name);
 		return;
 	}
 	fwrite(&ent_sz, 1, sizeof(unsigned), file);
@@ -70,22 +75,25 @@ void saveEntities(const char *name) {
 		fwrite(&entities[i], 1, sizeof(entity), file);
 	fclose(file);
 }
-void loadEntities(const char *name, entity *player) {
+bool loadEntities(const char *name, entity *player) {
 	char fname[32];
 	strcpy(fname, saveDir);
 	strcat(fname, name);
 	FILE *file = fopen(fname, "rb");
 	if (!file) {
-		fprintf(stderr, "Couldn't open file: %s\n", fname);
-		return;
+		ERR_A("Couldn't open file: %s\n", fname);
+		return true;
 	}
 	unsigned sz;
 	fread(&sz, 1, sizeof(unsigned), file);
+	printf("%u\n", sz);
 	ent_sz = sz;
 	fread(player, 1, sizeof(entity), file);
-	for (int i = 0; i < ent_sz; i++)
+	for (int i = 0; i < ent_sz; i++) {
 		fread(&entities[i], 1, sizeof(entity), file);
+	}
 	fclose(file);
+	return false;
 }
 
 void printEnts() {

@@ -1,13 +1,16 @@
 #include "config.h"
-#include "arr/arr.h"
+#include "arr.h"
+#include "exitCodes.h"
+#include "common.h"
+#include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <errno.h>
 
 char *saveDir = NULL;
-struct sermov movs[MOV_SZ] = {
+char *logFile = NULL;
+struct sermov movs[MOV_SZ] = { // Defaults
 		{true,  {4, 4}, "quitexit", "q", QUIT},
 		{false, {2},    "up",       "wu", UP},
 		{false, {4},    "down",     "s", DOWN},
@@ -22,40 +25,62 @@ extern const bool isDebug;
 void mkSaveDir();
 void loadSaveDir(FILE *file);
 void loadMovNames(FILE *file);
+void loadLogFile(FILE *file);
 
-void loadConfigs() {
+void loadConfigs(unsigned args) {
 	FILE *file = fopen("config.txt", "r");
 	if(!file) {
 		if(isDebug)
 			fprintf(stderr, "Couldn't open config.txt file, using defaults\n");
 	}
-	loadSaveDir(file);
-	loadMovNames(file);
+	// Has it been set from the command line
+	if((args & A_SDIR) == 0)
+		loadSaveDir(file);
+	loadMovNames(file);;
+	if((args & A_LOG) == 0)
+		loadLogFile(file);
 	fclose(file);
 }
 const char *LUT[5] = {
 		"multiple=%s","size=%s","longs=%s","shorts=%s","type=%s"
 };
+#define CH_TO_INT(x) ((x) - '0')
+
 void loadMovNames(FILE *file) {
-	if(!file)
-		return;
-	char buff[64];
-	if(!fgets(buff, 64, file)) {
-		fprintf(stderr, "Couldn't read from config\n");
+	fflush(stdout);
+	if(!file) {
+		ERR("File is null");
 		return;
 	}
-	if(sscanf(buff, "movNames:%42s", buff) != 1)
+	char buff[64];
+	if(!fgets(buff, 64, file)) {
+		ERR("Couldn't read from config");
 		return;
+	}
+	if(sscanf(buff, "movNames:%42s", buff) != 1) {
+		ERR_A("Couldn't parse mov names %s", buff);
+		return;
+	}
 	FILE *movfile = fopen(buff, "r");
 	if(!movfile) {
 		if(isDebug)
-			fprintf(stderr, "Couldn't open movs file %s, using default\n", buff);
+			ERR_A("Couldn't open movs file %s, using default\n", buff);
 		return;
 	}
 	char val[32];
 	for(int i = 0; i < MOV_SZ; i++) {
 		movs[i].names = malloc(32);
+		if(!movs[i].names) {
+			ERR_A("Couldn't allocate %dth name of movs\n", i);
+			exit(EX_ALLOC_ERR);
+		}
 		movs[i].chnames = malloc(7);
+		if(!movs[i].chnames) {
+			ERR_A("Couldn't allocate %dth char name of movs\n", i);
+			exit(EX_ALLOC_ERR);
+		}
+		if(movs[i].names == NULL || movs[i].chnames == NULL)
+			exit(EX_ALLOC_ERR);
 		for(int j = 0;j<6;j++) {
 			fgets(buff, 16, movfile);
 			if(j == 5)
@@ -66,15 +91,15 @@ void loadMovNames(FILE *file) {
 					movs[i].multiple = atoi(val);
 					break;
 				case 1: // lengths
-					movs[i].lens[0] = val[0] - '0';
+					movs[i].lens[0] = CH_TO_INT(val[0]);
 					if(movs[i].multiple)
-						movs[i].lens[1] = val[0] - '0';
+						movs[i].lens[1] = CH_TO_INT(val[1]);
 					break;
 				case 2: // longs
 					strncpy(movs[i].names, val, 32);
 					break;
 				case 3: // shorts
-					strncpy(movs[i].chnames, val, 5);
+					strncpy(movs[i].chnames, val, 6);
 					break;
 				case 4:
 					if(strncasecmp(val, "quit", 4) == 0 || strncasecmp(val, "exit", 4) == 0) {
@@ -107,20 +132,20 @@ void loadMovNames(FILE *file) {
 void loadSaveDir(FILE *file) {
 	saveDir = alloc(32);
 	if(!saveDir) {
-		fprintf(stderr, "Couldn't allocate for saveDir\n");
-		exit(1);
+		ERR("Couldn't allocate for saveDir\n");
+		exit(EX_ALLOC_ERR);
 	}
 	if(!file)
 		goto def;
 	char buff[64];
 	if(fgets(buff, 64, file) == NULL) {
-		fprintf(stderr, "Couldn't read from config\n");
+		ERR("Couldn't read from config\n");
 		goto def;
 	}
 	sscanf(buff, "saveDir:%32s", saveDir);
 	goto end;
 def:
-	strcpy(saveDir, "saves/");
+	strncpy(saveDir, "saves/", 6);
 end:
 	// Dir exists
 	{
@@ -137,15 +162,41 @@ void mkSaveDir() {
 		printf("Creating save dir\n");
 	switch (mkdir(saveDir, S_IRWXU)) {
 		case EACCES:
-			fprintf(stderr, "The program doesn't have access to the save directory\n");
-			break;
+			ERR("The program doesn't have access to the save directory\n");
+			exit(EX_ACCESS);
 		case EEXIST:
 			return;
 		case ENAMETOOLONG:
-			fprintf(stderr, "Save directory too long\n");
-			break;
+			ERR("Save directory too long\n");
+			exit(EX_TOO_LONG);
 		default:
 			break;
 	}
-	exit(2);
+	exit(EX);
+}
+
+void loadLogFile(FILE *file) {
+	if(!file)
+		return;
+	logFile = alloc(32);
+	if(!logFile) {
+		ERR("Couldn't allocate for logfile\n");
+		exit(EX_ALLOC_ERR);
+	}
+	char buff[64];
+	if(!fgets(buff, 64, file)) {
+		ERR("Couldn't read from config\n");
+		return;
+	}
+	if(sscanf(buff, "logFile:%32s", buff) != 1)
+		return;
+	FILE *logfile = fopen(buff, "r");
+
+	if(!logfile) {
+		if(isDebug)
+			ERR_A("Couldn't open movs file %s, using default\n", buff);
+		goto def;
+	}
+def:
+	strcpy(logFile, "log.txt");
 }

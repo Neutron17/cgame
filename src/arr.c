@@ -27,28 +27,28 @@ void *acalloc(size_t __nmemb, size_t __size) {
 	return x;
 }
 
-#include "config/config.h"
+#include "config.h"
+#include "exitCodes.h"
+#include "error.h"
 
-__attribute__((used)) enum ArrErrors __allocArr_ctor() {
+__attribute__((used)) void __allocArr_ctor() {
 	if(isDebug)
 		printf("Ctor\n");
-	//void **arrr = NULL;
-	//arrr = (void**)malloc(1*sz);
-	//arrr[0] = (void *)69;
 	max = ARR_SIZE;
 	arr.arr = (void **)malloc(ARR_SIZE);
 	//printf("%p\n", arr->arr);
 	if(arr.arr == NULL) {
-		if(isDebug)
-			printf("Couldn't allocate\n");
-		return COULDNT_ALLOCATE;
+		ERR("Couldn't allocate\n");
+		exit(EX_ALLOC_ERR);
 	}
 	used = 0;
-	return SUCCESS;
 }
-__attribute__((used)) enum ArrErrors __allocArr_dtor() {
+extern bool beforeAlloc;
+__attribute__((used)) void __allocArr_dtor() {
 	if(isDebug)
 		printf("dtor\n");
+	if(beforeAlloc)
+		return;
 	for(int i = 0; i < used; i++) {
 		if(isDebug)
 			printf("%p\n", arr.arr[i]);
@@ -61,13 +61,13 @@ __attribute__((used)) enum ArrErrors __allocArr_dtor() {
 	}
 	free(arr.arr);
 	arr.arr = NULL;
-	if(isDebug)
-		printf("Successfuly freed all\n");
 	for(int i = 0; i<MOV_SZ;i++) {
+		printf("%d\n", i);
 		free(movs[i].names);
 		free(movs[i].chnames);
 	}
-	return SUCCESS;
+	if(isDebug)
+		printf("Successfuly freed all\n");
 }
 enum ArrErrors allocArr_add(void *n) {
 	if(used == max)
@@ -79,23 +79,23 @@ enum ArrErrors allocArr_add(void *n) {
 	if(isDebug)
 		printf("Added %d. element %p\n", used + 1, n);
 	used++;
-	return SUCCESS;
+	return ARR_SUCCESS;
 }
 // TODO doesn't work
 enum ArrErrors allocArr_adds(unsigned sz, void *n, ...) {
 	va_list l;
 	va_start(l, n);
-	char last = SUCCESS;
+	char last = ARR_SUCCESS;
 	for(int i = 0; i < sz; i++) {
-		if((last = allocArr_add(va_arg(l, void *))) != SUCCESS)
+		if((last = allocArr_add(va_arg(l, void *))) != ARR_SUCCESS)
 		return last;
 	}
 	va_end(l);
-	return SUCCESS;
+	return ARR_SUCCESS;
 }
 enum ArrErrors __allocArr_pop2(const int n) {
-	int last = SUCCESS, count = 0;
-	while((last = __allocArr_pop1()) == SUCCESS && count < n)
+	int last = ARR_SUCCESS, count = 0;
+	while((last = __allocArr_pop1()) == ARR_SUCCESS && count < n)
 		count++;
 	return last;
 }
@@ -103,7 +103,7 @@ enum ArrErrors __allocArr_pop1() {
 	free(arr.arr[used - 1]);
 	arr.arr[used - 1] = NULL;
 	used--;
-	return SUCCESS;
+	return ARR_SUCCESS;
 }
 bool allocArr_in(const void *n) {
 	for(int i = 0; i < used; i++) {
