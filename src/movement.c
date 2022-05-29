@@ -107,7 +107,8 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 		case RESTART:
 			pl->position = unusedPos();
 			for(int i = 0; i < ent_sz; i++) {
-				entAtIndex(i)->position = (pos) { (int)random() % B_HEI, (int)random() % B_WID };
+				entAtIndex(i)->position = unusedPos();
+				//entAtIndex(i)->position = (pos) { (int)random() % B_HEI, (int)random() % B_WID };
 			}
 			break;
 		case NONE:
@@ -149,13 +150,15 @@ enum Movement strToMov(const char *in) {
 }
 
 pos unusedPos(void) {
-	pos tmp = {(int) random() % B_HEI, (int) random() % B_WID};;
+	pos tmp = {(int) random() % B_HEI, (int) random() % B_WID};
 	for (int j = -1; j < (int) ent_sz; j++) {
+u:
 		if (pSame(entAtIndex(j)->position, tmp))
 			goto r;
 		continue;
 r:
 		tmp = (pos) {(int) random() % B_HEI, (int) random() % B_WID};
+		goto u;
 	}
 	return tmp;
 }

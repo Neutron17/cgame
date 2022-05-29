@@ -4,7 +4,7 @@
 enum CollType {
 	DEF = 0,
 	BOX,
-	END
+	FIN
 };
 
 #endif //_NTR_COLLTYPE_H_

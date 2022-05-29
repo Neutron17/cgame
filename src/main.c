@@ -14,6 +14,7 @@
 #include "exitCodes.h"
 #include "args.h"
 #include "error.h"
+#include "editor/editor.h"
 
 bool isDebug = true;
 bool running = true;
@@ -21,7 +22,6 @@ bool beforeAlloc = false;
 
 void printBoard();
 unsigned parseArgs(int argc, char *argv[]);
-bool file_exists (char *filename);
 
 #define PL_ICON 'X'
 #define BX_ICON 'W'
@@ -32,10 +32,14 @@ int main(int argc, char *argv[]) {
 	errno = 0;
 	srandom(time(NULL));
 	unsigned args = parseArgs(argc, argv);
+	if((args & A_EDIT) == A_EDIT) {
+		editor();
+		return EX_SUCC;
+	}
 	loadConfigs(args);
 	entity pl = (entity) { ((pos) {1, 2}), PL_ICON, false, true, DEF };
 	setUpEntity(50, &pl);
-	printf("Load[0] or create new[1]?\n");
+	/*printf("Load[0] or create new[1]?\n");
 	switch (getchar()) {
 		case '0':
 			printf("Name: ");
@@ -46,16 +50,13 @@ int main(int argc, char *argv[]) {
 			}
 		default:
 			fprintf(stderr, "Invalid option, new game\n");
-		case '1':
-			//newBox(random() % B_HEI, random() % B_WID);
-			for (int i = 0; i < 9; i++) {
-				pos tmp = unusedPos();
-				newBox(tmp.y, tmp.x);
-			}
-			pos tmp = unusedPos();
-			addEntity((entity) {{tmp.y, tmp.x}, 'O', false, true, END});
-			break;
+		case '1':*/
+	for (int i = 0; i < 9; i++) {
+		pos tmp = unusedPos();
+		newBox(tmp.y, tmp.x);
 	}
+	pos tmp = unusedPos();
+	addEntity((entity) {{tmp.y, tmp.x}, 'O', false, true, FIN});
 	enum Movement mov = NONE;
 	int times = 0;
 	char buff[32] = "", str[16] = "", arg[7] = "";
@@ -92,7 +93,7 @@ extern char *logFile;
 unsigned parseArgs(int argc, char *argv[]) {
 	int c;
 	int args = 0;
-	while((c = getopt(argc, argv, "Vdvhl:s:")) != -1) {
+	while((c = getopt(argc, argv, "Vdvhl:s:e")) != -1) {
 		switch(c) {
 			case 'v':
 			case 'd':
@@ -106,8 +107,8 @@ unsigned parseArgs(int argc, char *argv[]) {
 				puts("-V: version\n"
 					 "-v or -d: debug\n"
 					 "-l <arg(32)>: set logfile\n"
-					 "-s <arg(32)>: set save directory"
-					 );
+					 "-s <arg(32)>: set save directory\n"
+					 "-e: launch editor");
 				break;
 			case 'l': {
 				logFile = alloc(32);
@@ -132,6 +133,9 @@ unsigned parseArgs(int argc, char *argv[]) {
 				args |= A_SDIR;
 				break;
 			}
+			case 'e':
+				args |= A_EDIT;
+				break;
 			default:
 				fprintf(stderr, "Unknown argument\n");
 				exit(EX_UNK_ARG);
@@ -154,9 +158,4 @@ void printBoard() {
 	for(int i = 0; i<B_WID+2;i++)
 		printf("-");
 	puts("");
-}
-
-bool file_exists (char *filename) {
-	struct stat   buffer;
-	return (stat (filename, &buffer) == 0);
 }

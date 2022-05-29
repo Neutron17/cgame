@@ -75,9 +75,10 @@ void saveEntities(const char *name) {
 		fwrite(&entities[i], 1, sizeof(entity), file);
 	fclose(file);
 }
+/** Returns: true on error. false by default */
 bool loadEntities(const char *name, entity *player) {
-	char fname[32];
-	strcpy(fname, saveDir);
+	char fname[48];
+	strncpy(fname, saveDir, 32);
 	strcat(fname, name);
 	FILE *file = fopen(fname, "rb");
 	if (!file) {
