@@ -33,7 +33,6 @@ unsigned parseArgs(int argc, char *argv[]);
 int main(int argc, char *argv[]) {
 	initscr();
 	noecho();
-	timeout(-1);
 	curs_set(FALSE);
 	keypad(stdscr, TRUE);
 	srandom(time(NULL));
@@ -69,8 +68,7 @@ int main(int argc, char *argv[]) {
 	printBoard();
 	while (running) {
 input:
-		//getnstr(buff, 32);
-		buff[0] = getch();
+		getnstr(buff, 32);
 		/*if(fgets(buff, 32, stdin) == NULL) {
 			fprintf(stderr, "No input\n");
 			goto input;

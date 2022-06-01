@@ -22,6 +22,8 @@ run: build
 	$(BIN)/c $*
 
 build: $(OBJ)
+	mkdir "build/"
+	mkdir "saves/"
 	$(CC) $(CCFLAGS) -ggdb -o $(BIN)/c $(filter %.o,$^) $(LDFLAGS)
 
 clean:
