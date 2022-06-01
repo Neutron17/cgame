@@ -21,7 +21,7 @@ struct sermov {
 };
 
 enum Movement strToMov(const char *in);
-void move(entity *pl, enum Movement mov/*, const char *arg*/);
+void n_move(entity *pl, enum Movement mov/*, const char *arg*/);
 pos unusedPos(void);
 
 #endif//_NTR_MOVEMENT_H_

@@ -14,6 +14,7 @@ CCFLAGS += -O0
 CCFLAGS += -Wall
 
 LDFLAGS  = $(INCFLAGS)
+LDFLAGS += -lncurses
 
 all: build
 
@@ -28,3 +29,7 @@ clean:
 
 %.o: %.c
 	$(CC) -ggdb -o $@ -c $< $(CCFLAGS)
+
+$(BIN):
+	mkdir -p $(BIN)
+

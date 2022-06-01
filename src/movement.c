@@ -48,8 +48,7 @@ t:
 	return true;
 }
 
-void move(entity *pl, enum Movement mov/*, const char *arg*/) {
-	//printf("%p\n", arg);
+void n_move(entity *pl, enum Movement mov) {
 	for (int i = 0; i < ent_sz; i++) {
 		entity *ent = entAtIndex(i);
 		if (!ent->blockColl)
@@ -125,13 +124,9 @@ void move(entity *pl, enum Movement mov/*, const char *arg*/) {
 enum Movement strToMov(const char *in) {
 	if(strnlen(in, 2) == 1) {
 		for (int i = 0; i < MOV_SZ; i++) {
-			//fprintf(stderr, "%s\n", movs[i].chnames);
-			//printf("%s\n", movs[i].chnames);
 			for (int j = 0; j < strlen(movs[i].chnames); j++) {
-				//printf("%c\n", movs[i].chnames[j]);
-				if (movs[i].chnames[j] == in[0]) {
+				if (movs[i].chnames[j] == in[0])
 					return movs[i].type;
-				}
 			}
 		}
 		return NONE;
@@ -139,9 +134,8 @@ enum Movement strToMov(const char *in) {
 	for (int i = 0; i < MOV_SZ; i++) {
 		if(movs[i].multiple) {
 			if(strncasecmp(movs[i].names, in, movs[i].lens[0]) == 0 ||
-			   strncasecmp(movs[i].names+movs[i].lens[0], in, movs[i].lens[1]) == 0) {
+			   strncasecmp(movs[i].names+movs[i].lens[0], in, movs[i].lens[1]) == 0)
 				return movs[i].type;
-			}
 		} else if (strncasecmp(movs[i].names, in, 16) == 0) {
 			return movs[i].type;
 		}
