@@ -14,6 +14,7 @@ CCFLAGS += -O0
 CCFLAGS += -Wall
 
 LDFLAGS  = $(INCFLAGS)
+LDFLAGS += -lncurses
 
 all: build
 
@@ -21,6 +22,8 @@ run: build
 	$(BIN)/c $*
 
 build: $(OBJ)
+	mkdir "build/"
+	mkdir "saves/"
 	$(CC) $(CCFLAGS) -ggdb -o $(BIN)/c $(filter %.o,$^) $(LDFLAGS)
 
 clean:

@@ -3,9 +3,11 @@
 
 #include <errno.h>
 #include <stdbool.h>
+#include <ncurses.h>
 
 #define VERSION 1.3
 
+#define printf printw
 void afterscanf();
 bool file_exists(const char *filename);
 

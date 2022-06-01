@@ -6,6 +6,8 @@
 #include <time.h>
 #include <getopt.h>
 #include <sys/stat.h>
+#include <ncurses.h>
+#include <unistd.h>
 #include "config.h"
 #include "movement.h"
 #include "position.h"
@@ -16,7 +18,7 @@
 #include "error.h"
 #include "editor/editor.h"
 
-bool isDebug = true;
+bool isDebug = false;
 bool running = true;
 bool beforeAlloc = false;
 
@@ -29,7 +31,10 @@ unsigned parseArgs(int argc, char *argv[]);
 #define newBox(x,y) addEntity((entity) { { x, y }, BX_ICON, true, false, BOX})
 
 int main(int argc, char *argv[]) {
-	errno = 0;
+	initscr();
+	noecho();
+	curs_set(FALSE);
+	keypad(stdscr, TRUE);
 	srandom(time(NULL));
 	unsigned args = parseArgs(argc, argv);
 	if((args & A_EDIT) == A_EDIT) {
@@ -57,21 +62,20 @@ int main(int argc, char *argv[]) {
 	}
 	pos tmp = unusedPos();
 	addEntity((entity) {{tmp.y, tmp.x}, 'O', false, true, FIN});
-	enum Movement mov = NONE;
+	enum Movement mov;
 	int times = 0;
 	char buff[32] = "", str[16] = "", arg[7] = "";
 	printBoard();
-	afterscanf();
 	while (running) {
 input:
-		printf("> ");
-		if(fgets(buff, 32, stdin) == NULL) {
+		getnstr(buff, 32);
+		/*if(fgets(buff, 32, stdin) == NULL) {
 			fprintf(stderr, "No input\n");
 			goto input;
-		}
+		}*/
 		sscanf(buff, "%15s %d", str, &times);
 		if ((mov = strToMov(str)) == NONE) {
-			puts("Invalid option");
+			printw("Invalid option\n");
 			goto input;
 		}
 		if(times < 1)
@@ -79,13 +83,15 @@ input:
 		else if(times > TIMES_MAX)
 			times = TIMES_MAX;
 		for(int i = 0; i < times; i++) {
-			move(&pl, mov);
+			n_move(&pl, mov);
 		}
 		strcpy(str, "");
 		strcpy(arg, "");
 		times = 1;
+		clear();
 		printBoard();
 	}
+	endwin();
 	return EX_SUCC;
 }
 
@@ -100,7 +106,7 @@ unsigned parseArgs(int argc, char *argv[]) {
 				isDebug = true;
 				break;
 			case 'V':
-				printf("Version: %f\n", VERSION);
+				fprintf(stdout, "Version: %f\n", VERSION);
 				beforeAlloc = true;
 				exit(0);
 			case 'h':
@@ -146,16 +152,17 @@ unsigned parseArgs(int argc, char *argv[]) {
 
 void printBoard() {
 	for(int i = 0; i<B_WID+2;i++)
-		printf("-");
-	puts("");
+		printw("-");
+	printw("\n");
 	for(int y = 0; y < B_HEI; y++) {
-		printf("|");
+		printw("|");
 		for (int x = 0; x < B_WID; x++) {
-				printf("%c", iconAtPos((pos){y,x}));
+			printw("%c", iconAtPos((pos){y,x}));
 		}
-		printf("|\n");
+		printw("|\n");
 	}
 	for(int i = 0; i<B_WID+2;i++)
-		printf("-");
-	puts("");
+		printw("-");
+	printw("\n");
+	refresh();
 }
